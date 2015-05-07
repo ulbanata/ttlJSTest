@@ -1,0 +1,112 @@
+<html>
+  <head>
+
+  </head>
+  <body>
+    <style>
+      textarea {
+        resize: none;
+        height: 200px;
+        width: 520px;
+        margin: 0;
+        padding: 0;
+        padding-left: 3px;
+        padding-top: 3px;
+        font-size: 16px;
+      }
+      body {
+        padding: 0px;
+        margin: 0px;
+      }
+    </style>
+
+    <textarea cols="60" id="input"></textarea>
+    <textarea disabled cols="60" id="output"></textarea>
+
+    <script>
+      var inputText = document.getElementById('input');
+      var outputText = document.getElementById('output');
+      var counter = 0;
+      var correct = true;
+      var expectedOutput = false;
+
+      inputText.addEventListener('keypress', function(e) {
+        if (e.keyCode === 13 && (e.shiftKey || e.metaKey)) {
+          e.preventDefault();
+          parseInput();
+        }
+      });
+
+      // Rewrite how console.log works
+      (function(){
+          var oldLog = console.log;
+          console.log = function (message) {
+              outputMessage(message)
+              checkOutput(message);
+              counter++;
+              oldLog.apply(console, arguments);
+          };
+      })();
+
+      // Eval the values in the inputText
+      var parseInput = function() {
+        var input = inputText.value;
+        if (!input)
+          return;
+        try {
+          outputMessage('Evaluating...')
+          eval(input);
+          if (correct && expectedOutput) {
+            outputMessage('Great job!');
+          } else if (expectedOutput) {
+            outputMessage('Almost, try again.');
+          }
+        } catch(err) {
+          outputMessage(err);
+        }
+        counter = 0;
+        correct = true;
+      }
+
+      var outputMessage = function(message) {
+        outputText.value = outputText.value + message + '\n';
+        outputText.scrollTop = outputText.scrollHeight
+      }
+
+      var setInitialInput = function(input) {
+        inputText.value = input;
+      }
+
+
+      var setExpectedOutput = function(output) {
+        expectedOutput = output;
+      }
+
+      var checkOutput = function(msg) {
+        if (expectedOutput && msg !== expectedOutput[counter]) {
+          correct = false;
+        }
+      }
+
+      var fizzbuzz = function(num) {
+        arr = []
+        for (var i = 1; i <= num; i++) {
+          if (i%15 === 0) {
+            arr.push('fizzbuzz');
+          } else if (i%3 === 0) {
+            arr.push('fizz');
+          } else if (i%5 === 0) {
+            arr.push('buzz');
+          } else {
+            arr.push(i)
+          }
+        }
+        return arr;
+      }
+
+      setExpectedOutput(fizzbuzz(30));
+
+    </script>
+  </body>
+</html>
+
